@@ -8,14 +8,13 @@ Description: This is the rocket lander simulation built on top of the gym lunar 
 from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revoluteJointDef, contactListener)
 import numpy as np
 import Box2D
-from gym.envs.classic_control import rendering
 import gym
 from gym import spaces
 from gym.utils import seeding
 import logging
-import pyglet
 from itertools import chain
 from constants import *
+from raylib import rl, colors
 
 
 # This contact detector is equivalent the one implemented in Lunar Lander
@@ -650,7 +649,7 @@ class RocketLander(gym.Env):
     def _render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
-                self.viewer.close()
+                rl.CloseWindow()
                 self.viewer = None
             return
 
@@ -658,8 +657,7 @@ class RocketLander(gym.Env):
         # Kept here for backwards compatibility purposes
         # Viewer Creation
         if self.viewer is None:  # Initial run will enter here
-            self.viewer = rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
-            self.viewer.set_bounds(0, W, 0, H)
+            rl.InitWindow(VIEWPORT_W, VIEWPORT_H)
 
         self._render_environment()
         self._render_lander()
@@ -680,8 +678,7 @@ class RocketLander(gym.Env):
         """
         # Viewer Creation
         if self.viewer is None:  # Initial run will enter here
-            self.viewer = rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
-            self.viewer.set_bounds(0, W, 0, H)
+            rl.InitWindow(VIEWPORT_W, VIEWPORT_H)
 
         if render:
             self.render()
@@ -696,10 +693,13 @@ class RocketLander(gym.Env):
             for f in obj.fixtures:
                 trans = f.body.transform
                 if type(f.shape) is circleShape:
-                    t = rendering.Transform(translation=trans * f.shape.pos)
-                    self.viewer.draw_circle(f.shape.radius, 20, color=obj.color1).add_attr(t)
-                    self.viewer.draw_circle(f.shape.radius, 20, color=obj.color2, filled=False,
-                                            linewidth=2).add_attr(t)
+                    #t = rendering.Transform(translation=trans * f.shape.pos)
+                    x, y = trans * f.shape.pos
+                    rl.DrawCircle(x, y, f.shape.radius, colors.RED)
+                    #rl.DrawCircle(f.shape.radius, 20, colors.RED)
+                    #self.viewer.draw_circle(f.shape.radius, 20, color=obj.color1).add_attr(t)
+                    #self.viewer.draw_circle(f.shape.radius, 20, color=obj.color2, filled=False,
+                    #                        linewidth=2).add_attr(t)
                 else:
                     # Lander
                     path = [trans * v for v in f.shape.vertices]
